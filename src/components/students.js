@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import * as React from "react";
 import {
   Snackbar,
   Alert,
@@ -18,84 +17,91 @@ import Paper from "@mui/material/Paper";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
-import SectionForm from "../../components/NavBar/SectionForm";
-import AuthServices from "../../services/auth.services";
+import { useState, useEffect } from "react";
+import CreateStudentForm from "./StudentForm";
+import { useNavigate } from "react-router-dom";
+import AuthServices from "../services/auth.services";
+import authHeader from "../services/auth-header";
 
-const SectionPage = () => {
-  const currentUser = AuthServices.getCurrentUser();
-  const currentUserRole = currentUser?.role;
-  const [sections, setSections] = useState([]);
-  const [section, setSection] = useState();
+const StudentsPage = () => {
+  const [students, setStudents] = useState([]);
+  const [student, setStudent] = useState();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [sectionCode, setSectionCode] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const [sections, setSections] = useState([]);
+  const navigate = useNavigate();
+  const currentUser = AuthServices.getCurrentUser();
+  const currentUserRole = currentUser?.role;
 
   const api = axios.create({
     baseURL: `http://localhost:8080/api`,
   });
 
-  const fetchSections = async () => {
-    const response = await api.get("/sections");
-    if (response) setSections(response.data);
-
-    fetchLatestRecord();
+  const fetchStudents = async () => {
+    const response = await api.get("/students", { headers: authHeader() });
+    if (response.data.status) {
+      setStudents(response.data.students);
+      fetchLatestRecord();
+    } else {
+      localStorage.removeItem('user');
+      navigate("/api/login", { replace: true });
+    }
   };
-  function pad(n, length) {
-    var len = length - ("" + n).length;
-    return (len > 0 ? new Array(++len).join("0") : "") + n;
-  }
 
   const fetchLatestRecord = async () => {
-    const response = await api.get("/sections/latestRecord/data");
-    let code = Number(response.data[0].sectionCode.slice(-3)) + 1;
-    let threeDigCode = pad(code, 3);
-
+    const response = await api.get("/students/latestRecord/data");
     if (response.data.length) {
-      setSectionCode(`CS-${threeDigCode}`);
-    } else setSectionCode("CS-001");
+      setRollNo((Number(response.data[0].rollNo) + 1).toString());
+    } else setRollNo("1");
   };
 
-  const fetchSectionById = async (id) => {
-    const response = await api.get(`/sections/${id}`);
+  const fetchStudentById = async (id) => {
+    const response = await api.get(`/students/${id}`);
     if (response.status === 200) {
-      setSection(response.data);
+      setStudent(response.data);
       setUpdateDialogOpen(true);
     }
   };
 
-  const deleteSection = async (id) => {
-    const response = await api.delete(`/sections/${id}`);
+  const deleteStudent = async (id) => {
+    const response = await api.delete(`/students/${id}`);
     if (response.status === 200) {
-      await fetchSections();
+      await fetchStudents();
       setAlertMessage("Successfully Deleted!");
     }
     return response.data;
   };
 
-  const createSection = async (section) => {
-    const response = await api.post(`/sections/`, section);
+  const createStudent = async (student) => {
+    const response = await api.post(`/students/`, student);
     if (response.status === 200) {
       setAlertMessage("Successfully Created!");
       setCreateDialogOpen(false);
-      await fetchSections();
+      await fetchStudents();
       setOpenAlert(true);
     }
   };
 
-  const updateSection = async (section) => {
-    const response = await api.put(`/sections/`, section);
+  const updateStudent = async (student) => {
+    const response = await api.put(`/students/`, student);
     if (response.status === 200) {
       setAlertMessage("Successfully Updated!");
       setUpdateDialogOpen(false);
       setOpenAlert(true);
-      await fetchSections();
-    } else {
+      await fetchStudents();
     }
   };
 
+  const fetchSections = async () => {
+    const response = await api.get("/sections");
+    if (response) setSections(response.data);
+  };
+
   useEffect(() => {
+    fetchStudents();
     fetchSections();
   }, []);
 
@@ -116,7 +122,7 @@ const SectionPage = () => {
               setCreateDialogOpen(true);
             }}
           >
-            Add New Section
+            Add New Student
           </Button>
         )}
       </div>
@@ -134,10 +140,13 @@ const SectionPage = () => {
               <TableRow>
                 <TableCell sx={{ width: "200px" }}>ID</TableCell>
                 <TableCell sx={{ width: "130px" }} align="left">
-                  Section Name
+                  Name
                 </TableCell>
                 <TableCell sx={{ width: "100px" }} align="left">
-                  Section Code
+                  Roll No
+                </TableCell>
+                <TableCell sx={{ width: "30px" }} align="left">
+                  Section
                 </TableCell>
                 {currentUserRole === "ADMIN" && (
                   <TableCell sx={{ width: "10px" }} align="right">
@@ -147,16 +156,17 @@ const SectionPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {sections?.map((section) => (
+              {students?.map((student) => (
                 <TableRow
-                  key={section._id}
+                  key={student._id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  <TableCell component="th" scope="section">
-                    {section._id}
+                  <TableCell component="th" scope="student">
+                    {student._id}
                   </TableCell>
-                  <TableCell align="left">{section.sectionName}</TableCell>
-                  <TableCell align="left">{section.sectionCode}</TableCell>
+                  <TableCell align="left">{student.name}</TableCell>
+                  <TableCell align="left">{student.rollNo}</TableCell>
+                  <TableCell align="left">{student.section}</TableCell>
                   {currentUserRole === "ADMIN" && (
                     <TableCell
                       align="right"
@@ -165,7 +175,7 @@ const SectionPage = () => {
                       <Stack direction="row" spacing={1}>
                         <IconButton
                           onClick={() => {
-                            fetchSectionById(section._id);
+                            fetchStudentById(student._id);
                           }}
                           aria-label="edit"
                         >
@@ -174,7 +184,7 @@ const SectionPage = () => {
                         <IconButton
                           aria-label="delete"
                           onClick={() => {
-                            deleteSection(section._id);
+                            deleteStudent(student._id);
                             setOpenAlert(true);
                           }}
                         >
@@ -189,19 +199,18 @@ const SectionPage = () => {
           </Table>
         </TableContainer>
       </div>
-
       <Dialog
         open={createDialogOpen}
         onClose={() => {
           setCreateDialogOpen(false);
         }}
       >
-        {/* <SectionForm handleSubmit={createSection} handleDialog={setCreateDialogOpen}  newSectionCode = {sectionCode}/> */}
-        <SectionForm
-          handleSubmit={createSection}
+        <CreateStudentForm
+          handleSubmit={createStudent}
           handleDialog={setCreateDialogOpen}
-          newSectionCode={sectionCode}
-          heading={"Add Section"}
+          newRollNo={rollNo}
+          sections={sections}
+          heading={"Add Student"}
         />
       </Dialog>
 
@@ -211,13 +220,14 @@ const SectionPage = () => {
           setUpdateDialogOpen(false);
         }}
       >
-        {section && (
-          <SectionForm
-            handleSubmit={updateSection}
-            values={section}
-            id={section._id}
+        {student && (
+          <CreateStudentForm
+            handleSubmit={updateStudent}
+            values={student}
+            id={student._id}
             handleDialog={setUpdateDialogOpen}
-            heading={"Update Section"}
+            sections={sections}
+            heading={"Update Student"}
           />
         )}
       </Dialog>
@@ -237,4 +247,4 @@ const SectionPage = () => {
   );
 };
 
-export default SectionPage;
+export default StudentsPage;

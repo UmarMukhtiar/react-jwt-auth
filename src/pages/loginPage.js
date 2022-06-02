@@ -1,18 +1,21 @@
 import { Paper, Grid, Avatar, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useState } from "react";
 import { Formik, Form } from "formik";
 import { Button, Stack, TextField, Divider } from "@mui/material";
-import AuthService from "../../services/auth.services";
+import AuthService from "../services/auth.services";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const paperStyle = {
     padding: "30px 20px 20px 20px",
-    transform: 'translate(50%, 50%)',
+    top: "50%",
+    left: "50%",
+    margin: '-200px 0 0 -150px',
     width: 300,
+    position: "absolute"
   };
   const headerStyle = { margin: 0 };
   const avatarStyle = { backgroundColor: "#1bbd7e" };
@@ -31,27 +34,23 @@ const LoginPage = () => {
     setFormValues({ ...formValues, [name]: value });
   };
 
-  // const loginUser = async () => {
-  //   console.log(formValues);
-  //   const response = await api.post(`/login`, formValues);
-  //   console.log();
-  //   if(response.data.user){
-  //     localStorage.setItem('token', response.data.user)
-  //     alert('Login Successfull!');
-  //     window.location.href = '/';
-  //   }else{
-  //     alert('Login Failed!');
-  //   }
-  // };
-
   const loginUser = async () => {
     const response = await AuthService.login(formValues);
     if (response.status) {
-      navigate("/api/students", { replace: true });
+      navigate("/api/home/students", { replace: true });
     } else {
       console.log("Error Occured!");
     }
   };
+
+  const authUser = async () => {
+    const response = await AuthService.auth();
+    if(response) navigate("/api/home/students", { replace: true });
+  }
+
+  useEffect(() => {
+    authUser();
+  }, [])
 
   return (
     <Grid>

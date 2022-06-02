@@ -22,8 +22,11 @@ const SignupPage = () => {
 
   const paperStyle = {
     padding: "30px 20px 20px 20px",
-    margin: "300px auto",
     width: 300,
+    top: "50%",
+    left: "50%",
+    margin: '-250px 0 0 -150px',
+    position: "absolute"
   };
   const headerStyle = { margin: 0 };
   const avatarStyle = { backgroundColor: "#1bbd7e" };
