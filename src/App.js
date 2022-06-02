@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import NavBar from "./components/NavBar/navbar";
+import StudentsPage from "./pages/Students/students";
+import SectionPage from "./pages/Students/sections";
+import SignupPage from "./pages/Students/signupPage";
+import LoginPage from "./pages/Students/loginPage";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 function App() {
+  const user = localStorage.getItem("token");
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Router>
+        <NavBar />
+        <Routes>
+          <Route exact path="api/students" element={<StudentsPage />} />
+          <Route exact path="/api/sections" element={<SectionPage />} />
+          <Route exact path="/api/login" element={<LoginPage />} />
+          <Route exact path="/api/signup" element={<SignupPage />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
