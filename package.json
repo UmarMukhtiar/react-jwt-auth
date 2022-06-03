@@ -22,7 +22,8 @@
     "react-scripts": "4.0.3",
     "stream": "^0.0.2",
     "util": "^0.12.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "yup": "^0.32.11"
   },
   "scripts": {
     "start": "react-scripts start",

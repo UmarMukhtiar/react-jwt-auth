@@ -11,7 +11,6 @@ import {
 } from "react-router-dom";
 
 function App() {
-  const user = localStorage.getItem("token");
 
   return (
     <>

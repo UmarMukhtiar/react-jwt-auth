@@ -2,7 +2,7 @@ import { Paper, Grid, Avatar, Typography } from "@mui/material";
 import React from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useState } from "react";
-import { Formik, Form } from "formik";
+import { Formik, Form, ErrorMessage } from "formik";
 import {
   Button,
   Stack,
@@ -16,17 +16,17 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import * as Yup from "yup";
 
 const SignupPage = () => {
   const navigate = useNavigate();
-
   const paperStyle = {
     padding: "30px 20px 20px 20px",
     width: 300,
     top: "50%",
     left: "50%",
-    margin: '-250px 0 0 -150px',
-    position: "absolute"
+    margin: "-250px 0 0 -150px",
+    position: "absolute",
   };
   const headerStyle = { margin: 0 };
   const avatarStyle = { backgroundColor: "#1bbd7e" };
@@ -42,19 +42,22 @@ const SignupPage = () => {
 
   const [formValues, setFormValues] = useState(initialValues);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
+  const validationSchema = Yup.object().shape({
+    password: Yup.string()
+      .min(8, "Password should be minimum 8 characters!")
+      .required("Please enter password!")
+      .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+      "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number")
+  });
 
   const api = axios.create({
     baseURL: `http://localhost:8080/api`,
   });
 
-  const signupUser = async () => {
-    const response = await api.post(`/signup`, formValues);
+  const signupUser = async (values) => {
+    const response = await api.post(`/signup`, values);
     if (response.data.status === true) {
-      navigate('/api/login', {replace: true})
+      navigate("/api/login", { replace: true });
     }
   };
 
@@ -70,9 +73,13 @@ const SignupPage = () => {
             Please fill this form to create an account!
           </Typography>
         </Grid>
-        <Formik initialValues={formValues} onSubmit={signupUser}>
-          {() => (
-            <Form style={marginTop}>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={(values) => signupUser(values)}
+        >
+          {(values, handleChange, handleSubmit, errors, touched) => (
+            <Form onSubmit={handleSubmit} style={marginTop}>
               <Stack spacing={2}>
                 <TextField
                   type="text"
@@ -81,9 +88,11 @@ const SignupPage = () => {
                   variant="outlined"
                   placeholder="Enter your User Name"
                   required
-                  value={formValues.userName}
+                  value={values.userName}
                   onChange={handleChange}
+                  error={Boolean(errors.userName) && Boolean(touched.userName)}
                 />
+                <ErrorMessage name="userName" />
                 <TextField
                   type="email"
                   name="email"
@@ -91,9 +100,10 @@ const SignupPage = () => {
                   variant="outlined"
                   placeholder="Enter your Email"
                   required
-                  value={formValues.email}
+                  value={values.email}
                   onChange={handleChange}
                 />
+                <ErrorMessage name="email" />
                 <TextField
                   type="password"
                   name="password"
@@ -101,9 +111,10 @@ const SignupPage = () => {
                   variant="outlined"
                   placeholder="Enter your Password"
                   required
-                  value={formValues.password}
+                  value={values.password}
                   onChange={handleChange}
                 />
+                <ErrorMessage name="password" />
                 <FormControl>
                   <FormLabel id="demo-controlled-radio-buttons-group">
                     Role
