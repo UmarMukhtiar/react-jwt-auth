@@ -10,7 +10,6 @@ class AuthService {
         password: data.password,
       })
       .then((response) => {
-        console.log(response);
         if (response.data.user.accessToken) {
           localStorage.setItem("user", JSON.stringify(response.data.user));
         }
@@ -22,7 +21,7 @@ class AuthService {
     return axios
       .get(API_URL + "auth", { headers: authHeader() })
       .then((response) => {
-          return response.data.status;
+        return response.data.status;
       });
   }
 

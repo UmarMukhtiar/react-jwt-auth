@@ -205,7 +205,6 @@ const SectionPage = () => {
           setCreateDialogOpen(false);
         }}
       >
-        {/* <SectionForm handleSubmit={createSection} handleDialog={setCreateDialogOpen}  newSectionCode = {sectionCode}/> */}
         <SectionForm
           handleSubmit={createSection}
           handleDialog={setCreateDialogOpen}

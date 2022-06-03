@@ -1,7 +1,6 @@
 import { Paper, Grid, Avatar, Typography } from "@mui/material";
 import React from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { useState } from "react";
 import { Formik, Form, ErrorMessage } from "formik";
 import {
   Button,
@@ -39,8 +38,6 @@ const SignupPage = () => {
     password: "",
     role: "USER",
   };
-
-  const [formValues, setFormValues] = useState(initialValues);
 
   const validationSchema = Yup.object().shape({
     password: Yup.string()
@@ -90,7 +87,6 @@ const SignupPage = () => {
                   required
                   value={values.userName}
                   onChange={handleChange}
-                  error={Boolean(errors.userName) && Boolean(touched.userName)}
                 />
                 <ErrorMessage name="userName" />
                 <TextField

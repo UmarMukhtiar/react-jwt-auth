@@ -19,7 +19,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import CreateStudentForm from "./StudentForm";
-import { useNavigate } from "react-router-dom";
 import AuthServices from "../services/auth.services";
 import authHeader from "../services/auth-header";
 
@@ -32,7 +31,6 @@ const StudentsPage = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [rollNo, setRollNo] = useState("");
   const [sections, setSections] = useState([]);
-  const navigate = useNavigate();
   const currentUser = AuthServices.getCurrentUser();
   const currentUserRole = currentUser?.role;
 
@@ -42,13 +40,8 @@ const StudentsPage = () => {
 
   const fetchStudents = async () => {
     const response = await api.get("/students", { headers: authHeader() });
-    if (response.data.status) {
-      setStudents(response.data.students);
-      fetchLatestRecord();
-    } else {
-      localStorage.removeItem('user');
-      navigate("/api/login", { replace: true });
-    }
+    setStudents(response.data.students);
+    fetchLatestRecord();
   };
 
   const fetchLatestRecord = async () => {

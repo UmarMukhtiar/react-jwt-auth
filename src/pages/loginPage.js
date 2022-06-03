@@ -1,7 +1,6 @@
 import { Paper, Grid, Avatar, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import React from "react";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { useState } from "react";
 import { Formik, Form } from "formik";
 import { Button, Stack, TextField, Divider } from "@mui/material";
 import AuthService from "../services/auth.services";
@@ -13,9 +12,9 @@ const LoginPage = () => {
     padding: "30px 20px 20px 20px",
     top: "50%",
     left: "50%",
-    margin: '-200px 0 0 -150px',
+    margin: "-200px 0 0 -150px",
     width: 300,
-    position: "absolute"
+    position: "absolute",
   };
   const headerStyle = { margin: 0 };
   const avatarStyle = { backgroundColor: "#1bbd7e" };
@@ -27,30 +26,14 @@ const LoginPage = () => {
     password: "",
   };
 
-  const [formValues, setFormValues] = useState(initialValues);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
-
-  const loginUser = async () => {
-    const response = await AuthService.login(formValues);
+  const loginUser = async (values) => {
+    const response = await AuthService.login(values);
     if (response.status) {
       navigate("/api/home/students", { replace: true });
     } else {
       console.log("Error Occured!");
     }
   };
-
-  const authUser = async () => {
-    const response = await AuthService.auth();
-    if(response) navigate("/api/home/students", { replace: true });
-  }
-
-  useEffect(() => {
-    authUser();
-  }, [])
 
   return (
     <Grid>
@@ -64,9 +47,9 @@ const LoginPage = () => {
             Please fill this form to login!
           </Typography>
         </Grid>
-        <Formik initialValues={formValues} onSubmit={loginUser}>
-          {() => (
-            <Form style={marginTop}>
+        <Formik initialValues={initialValues} onSubmit={(values)=>loginUser(values)}>
+          {({ values, handleSubmit, handleChange }) => (
+            <Form onSubmit={handleSubmit} style={marginTop}>
               <Stack spacing={2}>
                 <TextField
                   type="email"
@@ -75,7 +58,7 @@ const LoginPage = () => {
                   variant="outlined"
                   placeholder="Enter your Email"
                   required
-                  value={formValues.email}
+                  value={values.email}
                   onChange={handleChange}
                 />
                 <TextField
@@ -85,7 +68,7 @@ const LoginPage = () => {
                   placeholder="Enter your Password"
                   variant="outlined"
                   required
-                  value={formValues.password}
+                  value={values.password}
                   onChange={handleChange}
                 />
                 <Divider />

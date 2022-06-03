@@ -11,7 +11,6 @@ import AuthServices from "../services/auth.services";
 
 const NavBar = () => {
   const navigation = useNavigate("");
-
   const handleLogout = () => {
     AuthServices.logout();
     navigation("/api/login", { replace: true });
